@@ -1,13 +1,9 @@
 from typing import Any
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
 """Database models"""
-
-# class Ingredient(models.Model):
-#     """Ingredient for my local recipes"""
-#     name = models.CharField(max_length=300)
-#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
 class UserManager(BaseUserManager):
     """Manager for user creation"""
@@ -27,7 +23,7 @@ class UserManager(BaseUserManager):
         user.is_staff = True
         user.is_superuser = True
         user.save(using=self._db)
-        return
+        return user
 
 class User(AbstractBaseUser, PermissionsMixin):
     """User in the database"""
@@ -39,3 +35,34 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = 'email'
+
+class Recipe(models.Model):
+    """Recipe Model"""
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    time_minutes = models.IntegerField()
+    price = models.DecimalField(max_digits=5, decimal_places=2)
+    link = models.CharField(max_length=255, blank=True)
+    tags = models.ManyToManyField('Tag') #many different recipes that have many different tags
+    ingredients = models.ManyToManyField('Ingredients')
+
+    def __str__(self) -> str:
+        return self.title
+
+
+class Tag(models.Model):
+    """tag for filtering recipes, you can filter recipes by tags"""
+    name = models.CharField(max_length=255)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.name
+
+class Ingredient(models.Model):
+    """Ingredient for my local recipes"""
+    name = models.CharField(max_length=300)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self) -> str:
+        return self.name

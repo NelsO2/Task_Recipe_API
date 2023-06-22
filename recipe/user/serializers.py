@@ -15,6 +15,8 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         """method to create and return a user with encrypted password"""
         return get_user_model().objects.create_user(**validated_data)
+        """ (**) operator gathers all the named arguments and makes a dictionary.
+        When calling a function, it takes a dictionary and breaks it into named arguments"""
 
     def update(self, instance, validated_data):
         """method to update and return a user"""
@@ -33,7 +35,7 @@ class AuthTokenSerializers(serializers.Serializer):
     password = serializers.CharField(style={'input_type': 'password'}, trim_whitespace=False)
 
     def validate(self, attrs):
-        """this validate and authenticate the user"""
+        """this validate and authenticate the user that is login"""
         email = attrs.get('email')
         password = attrs.get('password')
         user = authenticate(request=self.context.get('request'), username=email, password=password)
